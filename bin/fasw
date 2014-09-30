@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Getopt::Long;
+
+use Bio::SeqIO;
+
+sub usage {
+    my ($exit) = @_;
+
+    my $statement = "$0 [-window=60 -skip=30] fasta.fa > windowed.fa\n";
+
+    my $verbose = "skip may not be 0";
+
+    print $statement;
+    exit($exit);
+    
+}
+
+my $help = '';
+my $window = 60;  
+my $skip = 30;
+my $clip = '';
+
+GetOptions(
+            "window=i"   => \$window,
+            "skip=i"     => \$skip,
+            "clip=i"     => \$clip,
+            "help|h"     => \$help,
+          ) or usage(1);
+
+usage(0) if $help;
+
+usage(1) if $skip <= 0;
+usage(1) if $window <= 0;
+
+usage(1) if scalar(@ARGV) < 1;
+my $fastafile = shift;
+
+my $seqObj  = Bio::SeqIO->new(-file => $fastafile, -format => "fasta");
+while ( my $seq = $seqObj->next_seq ) {
+    my $id = $seq->primary_id;
+    my @windows = ('');
+    my $len = $seq->length;
+    for(my $i = 1; $i <= $len - ($window - 1); $i+=$skip) {
+        last if $clip and $i >= $clip;
+        print ">" . $seq->primary_id . "_window_" . $i . "\n";
+        my $j = $i + ($window - 1);
+        print $seq->subseq($i, $j) . "\n";
+    }
+}

@@ -1,11 +1,42 @@
 fastascripts – Manipulate FASTA files
 =====================================
 
-These scripts were never meant to see the light of day. I apologize for the
-distasteful code.
+Everyone writes one off scripts to manipulate FASTA files.  Use these instead -- they're working and tested (mostly).  Let's work towards having one collection of small tools that we trust to work properly. 
 
-Utilities
+These scripts were originally written in 2013 by Shaun Jackman with the following disclaimer: "These scripts were never meant to see the light of day. I apologize for the distasteful code."
+
+Since then, I have rewritten facat and fagrep to be a bit more robust, and added tests for them.  I have added some new scripts as well (see below).  I am starting to collect the functions into a module; there is a lot of room to simplify this further.  Some scripts now rely on BioPerl.
+
+New in v2
 =========
+
+Updated with tests
+
+* `facat`
+	Concatenate FASTA files and add a prefix to the identifier; optionally remove spaces from ids
+* `fagrep` and `faget` have been merged
+    Specify queries for identifiers in FASTA files; exact/fuzzy match supported
+
+Added and tested
+
+* `fagrepif`
+    Grep for a codon in frame; has colour highlighting like unix grep
+
+Added but pending tests
+
+* `fastandard`
+    Exclude any entries that contain nonstandard bases
+* `fasplit`
+    Split fasta file into a file for each gene
+* `famerge`
+    Merge exon entries into one entry based on fasta id
+* `fatrans`
+    Translate from nucleotide to protein, specifying genetic code
+* `fasw`
+    Split entries by applying a sliding window to extract possibly overlapping sequences
+
+Original Utilities
+==================
 
 * `facanon`
 	Output the lexicographically smaller of the sequence and its reverse complement

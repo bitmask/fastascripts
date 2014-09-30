@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use FA;
+
+sub usage {
+    my ($exit) = @_;
+
+    my $statement = <<USAGESTMT;
+    $0 [--colour|color=<colour>] <query codon> <FASTA>
+    grep in frame for the query in the fasta file
+USAGESTMT
+
+    print $statement;
+    exit($exit);
+    
+}
+
+my $help = '';
+my $colour = '';
+
+GetOptions(
+              "help|h"           => \$help,
+              "color|colour=s"   => \$colour,
+          ) or usage(1);
+
+
+usage(0) if $help;
+
+usage(1) if scalar(@ARGV) < 2;
+my $query = shift;
+
+$Term::ANSIColor::AUTORESET = 1;
+my @validcolours = qw(black  red  green  yellow  blue  magenta  cyan  white);
+
+my $fh = \*STDOUT;
+
+foreach my $file (@ARGV) {
+    fagrepif($fh, $file, $query, $colour);
+}
+

@@ -1,0 +1,69 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Getopt::Long;
+
+use Bio::SeqIO;
+
+sub usage {
+    my ($exit) = @_;
+
+    my $statement = <<USAGESTMT;
+	Merge exons in a fasta file into one entry for the gene.
+	Exons must be in sequence, and must have the gene name in the primary id
+    $0 <FASTA>
+USAGESTMT
+
+    print $statement;
+    exit($exit);
+    
+}
+
+my $help = '';
+
+GetOptions(
+              "help|h"     => \$help,
+          ) or usage(1);
+
+
+usage(0) if $help;
+
+usage(1) if scalar(@ARGV) < 1;
+my $fastafile = shift;
+
+my $seq = Bio::SeqIO->new(-file => $fastafile, -format => "fasta");
+
+my $current_gene = '';
+my $current_seq = '';
+
+while ( my $seq = $seq->next_seq ) {
+	# the gene name is last in the - separated id
+	# if the gene names match, we merge the entries
+    my $id = $seq->primary_id;
+	my $gene = '';
+	my @g = split /-/, $id; 
+	if (length($g[-1]) > 1) {
+		$gene = $g[-1];
+	} 
+	else {
+		$gene = $g[-2] . "-" .$g[-1]
+	}
+
+	if ($gene eq $current_gene) {
+		$current_seq .= $seq->seq;
+	}
+	else {
+		if ($current_gene ne '') {
+			print ">$current_gene\n";
+			print "$current_seq\n";
+		}
+		$current_gene = $gene;
+		$current_seq = $seq->seq;
+	}
+}
+
+print ">$current_gene\n";
+print "$current_seq\n";

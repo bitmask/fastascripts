@@ -1,9 +1,0 @@
-#!/bin/bash
-# Search a FASTA file using a regular expression
-# Copyright 2012 Shaun Jackman
-
-set -eu
-f="$1"
-shift
-grep --color=auto -B1 -Ff \
-	<(grep -v '^>' $f; grep -v '^>' $f |farc) "$@"

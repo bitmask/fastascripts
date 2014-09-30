@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Getopt::Long;
+
+use Bio::SeqIO;
+
+sub usage {
+    my ($exit) = @_;
+
+    my $statement = <<USAGESTMT;
+	Translate nucleotide to protein fasta
+    $0 [--gencode=1] <FASTA>
+USAGESTMT
+
+    print $statement;
+    exit($exit);
+    
+}
+
+my $help = '';
+my $genetic_code = 1;
+
+GetOptions(
+              "help|h"     => \$help,
+              "gencode=i"  => \$genetic_code,
+          ) or usage(1);
+
+
+usage(0) if $help;
+
+usage(1) if scalar(@ARGV) < 1;
+my $fastafile = shift;
+
+my $seq = Bio::SeqIO->new(-file => $fastafile, -format => "fasta");
+
+my $current_gene = '';
+my $current_seq = '';
+
+
+################################################################################
+## returns an array of the 64 anticodons in the order of the GCN tables (alphabetical)
+sub get_64_anticodons {
+    my $acpos1 = "A" x 16 . "C" x 16 . "G" x 16 . "T" x 16;
+    my $acpos2 = ("A" x 4 . "C" x 4 . "G" x 4 . "T" x 4) x 4;
+    my $acpos3 = "ACGT" x 16;
+    
+    my @anticodons;
+    for (my $i=0; $i<length($acpos1); $i++) {
+        my $ac = substr($acpos1, $i, 1) . substr($acpos2, $i, 1) . substr($acpos3, $i, 1);
+        push @anticodons, $ac;
+    }
+    my $str = join ".", @anticodons;
+    return \@anticodons;
+}
+
+################################################################################
+## returns an array of 64 codons, in the order of the GCN tables -- alphabetically by anticodon
+sub get_64_codons {
+    my @codons;
+    my $anticodons = get_64_anticodons();
+    foreach my $ac (@$anticodons) {
+        my $acd = Bio::PrimarySeq->new($ac);
+        my $cd = $acd->revcom();
+        push @codons, $cd->seq;
+    }
+    return \@codons;
+}
+
+my $myCodonTable = Bio::Tools::CodonTable->new( -id => $genetic_code);
+    
+my %translationtable;
+foreach my $cdn (@{get_64_codons()}) {
+    $translationtable{$cdn} = $myCodonTable->translate($cdn);
+}
+
+while ( my $seq = $seq->next_seq ) {
+    my $id = $seq->primary_id;
+
+    my $protein = '';
+    my @codons = ($seq->seq =~ m/.{3}/g);
+    foreach my $cdn (@codons) {
+        $protein .= $translationtable{$cdn};
+    }
+
+   	print ">$id\n";
+   	print "$protein\n";
+}

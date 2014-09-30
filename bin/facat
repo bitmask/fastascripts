@@ -1,0 +1,48 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+
+use FA;
+
+# get rid of spaces in fasta ids and
+# optionally add a prefix before each fasta id
+
+sub usage {
+    my ($exit) = @_;
+    my $statement = <<USAGESTMT;
+    Concatenate fasta files and clean their ids
+    Spaces are removed from filenames by default and replaced by the separator specified by --sep ("_" by default)
+    Multiple fasta files can be specifed, and they will be processed in series
+    All output is printed to stdout
+    $0 [--normspace] [--pre prefix] [--sep _] <FASTA> [<FASTA> ...]
+USAGESTMT
+    print $statement;
+    exit($exit);
+}
+
+my $help = "";
+my $prefix = "";
+my $normspace = 0;
+my $sep = "_";
+
+GetOptions(
+              "help|h"     => \$help,
+              "prefix=s"   => \$prefix,
+              "normspace"  => \$normspace,
+              "sep=s"      => \$sep,
+          ) or usage(1);
+
+usage(1) if scalar(@ARGV) < 1;
+
+my $fh = \*STDOUT;
+
+foreach my $file (@ARGV) {
+    facat($fh, $file, $prefix, $sep, $normspace);
+}
+

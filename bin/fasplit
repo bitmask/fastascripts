@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Getopt::Long;
+
+use Bio::SeqIO;
+
+sub usage {
+    my ($exit) = @_;
+
+    my $statement = <<USAGESTMT;
+    $0 <FASTA>
+USAGESTMT
+
+    print $statement;
+    exit($exit);
+    
+}
+
+my $help = '';
+
+GetOptions(
+              "help|h"     => \$help,
+          ) or usage(1);
+
+
+usage(0) if $help;
+
+usage(1) if scalar(@ARGV) < 1;
+my $fastafile = shift;
+
+my $seq = Bio::SeqIO->new(-file => $fastafile, -format => "fasta");
+
+while ( my $seq = $seq->next_seq ) {
+    my $id = $seq->primary_id;
+    my $file = "genes/$id.fa";
+    open(my $fh, ">", $file) or die "can't open $file because: $!";
+    print $fh ">$id\n";
+    print $fh $seq->seq . "\n";  
+	close $fh;
+}

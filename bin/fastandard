@@ -1,0 +1,36 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use Bio::SeqIO;
+use Bio::SeqUtils;
+
+sub usage {
+    my ($exit) = @_;
+    my $statement = <<USAGESTMT;
+    Return only entries with standard bases
+    $0 <FASTA> 
+USAGESTMT
+    print $statement;
+    exit($exit);
+}
+
+my $file = shift;
+usage(1) unless $file;
+
+my $seqObj  = Bio::SeqIO->new(-file => $file, -format => "fasta");
+
+while( my $seq = $seqObj->next_seq ) {
+   my $id = $seq->primary_id;
+   if ($seq->seq) {
+      my $seqstr = uc($seq->seq);
+      next if length($seqstr) < 9; #must contain more than just a start and a stop codon
+      next if $seqstr =~ /N/;
+      print ">$id\n";
+      print "$seqstr\n";
+   }
+}
+
+
+

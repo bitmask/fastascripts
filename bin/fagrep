@@ -1,0 +1,60 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use FA;
+
+sub usage {
+    my ($exit) = @_;
+    my $statement = <<USAGESTMT;
+    Grep for query in ids of fasta file
+
+    All output is printed to stdout
+    $0 [-f queryfile] [--exact] <query> <FASTA> [<FASTA> ...]
+USAGESTMT
+    print $statement;
+    exit($exit);
+}
+
+
+my $help = '';
+my $queryfile = '';
+my $exact = 0;
+
+GetOptions(
+			  "file|f=s"   => \$queryfile,
+              "exact"      => \$exact,
+              "help|h"     => \$help,
+          ) or usage(1);
+
+
+usage(0) if $help;
+
+my $query;
+$query = shift unless $queryfile;
+
+usage(1) if scalar(@ARGV) < 1;
+
+my @query;
+if ($queryfile) {
+	open(my $fh, "<", $queryfile) or die "can't open $queryfile because: $!";
+	while(<$fh>) {
+		chomp;
+		push @query, $_;
+	}
+}
+else {
+	push @query, $query;
+}
+
+my $fh = \*STDOUT;
+
+foreach my $file (@ARGV) {
+    fagrep($fh, $file, \@query, $exact);
+}

@@ -13,7 +13,7 @@ New in v2
 Updated with tests
 
 * `facat`
-	Concatenate FASTA files and add a prefix to the identifier; optionally remove spaces from ids
+	Concatenate FASTA files and add a prefix to the identifier; optionally remove spaces from ids; merges all sequence lines into one line
 * `fagrep` and `faget` have been merged
     Specify queries for identifiers in FASTA files; exact/fuzzy match supported
 

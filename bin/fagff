@@ -18,6 +18,7 @@ sub usage {
     my $statement = <<USAGESTMT;
     Split each entry in fasta file into pieces based on the provided gff. 
     The fasta file can contain alignments, in which case gaps are skipped to determine the boundaries.
+    The GFF file must refer to the first entry in the FASTA file.
     $0 --gff <GFF> [--nogaps] <FASTA> [<FASTA> ...]
     --gff specifies the GFF file to use for protein definitions
     --nogaps will remove gaps "-" in the resulting sequences

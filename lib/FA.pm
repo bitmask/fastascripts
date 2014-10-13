@@ -186,11 +186,13 @@ sub alignsubseq {
     my $gap_before_start = 0;
     my $gap_before_end = 0;
     while (my ($index, $nt) = each @nt) {
+        #print "$index $nt $gap_before_start $gap_before_end\n";
+
         if ($nt eq "-") {  # TODO allow for more gap characters
-            if ($index <= $start) {
+            if ($index <= $start + $gap_before_start) {
                 $gap_before_start++;
             }
-            if ($index <= $end) {
+            if ($index <= $end + $gap_before_end) {
                 $gap_before_end++;
             }
         }
@@ -216,6 +218,9 @@ sub fagff {
             while(my $feature = $gffio->next_feature()) {
 
                 my ($start, $end) = alignsubseq($seq->seq, $feature->start, $feature->end);
+                print "start: $start\n";
+                print "end: $end\n";
+                
                 push @positions, {start => $start, end => $end, orig_start => $feature->start, orig_end => $feature->end};
             }
             $first = 0;

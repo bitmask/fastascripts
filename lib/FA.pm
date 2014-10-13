@@ -2,6 +2,10 @@
 use Term::ANSIColor 2.01 qw(BOLD :constants);
 use Bio::SeqIO;
 use Bio::Tools::GFF;
+use Data::Dumper;
+
+use warnings;
+use strict;
 
 sub facat {    
      my ($fh, $file, $prefix, $sep, $normspace) = @_;
@@ -175,17 +179,61 @@ sub fatrans {
     return 1;
 }
 
-
-sub fagff {
-    my ($fh, $file, $gff) = @_;
-
-    my $seq = Bio::SeqIO->new(-file => $fastafile, -format => "fasta");
-    while ( my $seq = $seq->next_seq ) {
-        my $gffio = Bio::Tools::GFF->new(-fh => \*FH, -gff_version => 3);
-        while(my $feature = $gffio->next_feature()) {
-
+sub alignsubseq {
+    # disregards dashes and returns the position that the requested subseq of the non-aligned sequence has
+    my ($seq, $start, $end) = @_;
+    my @nt = ($seq =~ m/./g);
+    my $gap_before_start = 0;
+    my $gap_before_end = 0;
+    while (my ($index, $nt) = each @nt) {
+        if ($nt eq "-") {  # TODO allow for more gap characters
+            if ($index <= $start) {
+                $gap_before_start++;
+            }
+            if ($index <= $end) {
+                $gap_before_end++;
+            }
         }
     }
+    return ($start + $gap_before_start, $end + $gap_before_end);
+}
+
+sub fagff {
+    my ($fh, $fastafile, $gff, $nogaps) = @_;
+
+    # use the gff file to extract appropriate columns for each gff feature from the fasta file
+    # fasta file can be an alignment, and - characters will be ignored in the first entry of the fasta file to select the columns to keep
+    # thus, you can have a normal gff file for a sequence, align the fasta file it refers to to some other sequences, and extract the proteins using your original gff file, independent of the alignment, and retrieve the corresponding proteins from all entries in the alignment
+
+    my $first = 1;
+    my @positions;
+    my $seq = Bio::SeqIO->new(-file => $fastafile, -format => "fasta");
+    while ( my $seq = $seq->next_seq ) {
+        my $id = $seq->id;
+        my $desc = $seq->desc;
+        if ($first) {
+            my $gffio = Bio::Tools::GFF->new(-file => $gff, -gff_version => 3);
+            while(my $feature = $gffio->next_feature()) {
+
+                my ($start, $end) = alignsubseq($seq->seq, $feature->start, $feature->end);
+                push @positions, {start => $start, end => $end, orig_start => $feature->start, orig_end => $feature->end};
+            }
+            $first = 0;
+        }
+        foreach my $pos (@positions) {
+            my $identifier = "";
+            $identifier = "$id" . "_" . $pos->{orig_start} . "-" . $pos->{orig_end} . " " . $desc if $desc;
+            $identifier = "$id" . "_" . $pos->{orig_start} . "-" . $pos->{orig_end} unless $desc;
+
+            print $fh ">$identifier\n";
+            my $printseq = $seq->subseq($pos->{start}, $pos->{end});
+            if ($nogaps) {
+                $printseq =~ s/-//g;
+            }
+            print $fh $printseq . "\n";
+        }
+    }
+    return 1;
 }
 
 

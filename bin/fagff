@@ -18,7 +18,9 @@ sub usage {
     my $statement = <<USAGESTMT;
     Split each entry in fasta file into pieces based on the provided gff. 
     The fasta file can contain alignments, in which case gaps are skipped to determine the boundaries.
-    $0 -gff <GFF> <FASTA> [<FASTA> ...]
+    $0 --gff <GFF> [--nogaps] <FASTA> [<FASTA> ...]
+    --gff specifies the GFF file to use for protein definitions
+    --nogaps will remove gaps "-" in the resulting sequences
 USAGESTMT
     print $statement;
     exit($exit);
@@ -26,17 +28,21 @@ USAGESTMT
 
 my $help = "";
 my $gff = "";
+my $nogaps = 0;
 
 GetOptions(
               "help|h"     => \$help,
               "gff=s"      => \$gff,
+              "nogaps"     => \$nogaps,
           ) or usage(1);
 
+
 usage(1) if scalar(@ARGV) < 1;
+usage(1) if $gff eq "";
 
 my $fh = \*STDOUT;
 
 foreach my $file (@ARGV) {
-    fagff($fh, $file, $gff);
+    fagff($fh, $file, $gff, $nogaps);
 }
 

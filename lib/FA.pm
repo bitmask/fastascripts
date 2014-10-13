@@ -1,6 +1,7 @@
 
 use Term::ANSIColor 2.01 qw(BOLD :constants);
 use Bio::SeqIO;
+use Bio::Tools::GFF;
 
 sub facat {    
      my ($fh, $file, $prefix, $sep, $normspace) = @_;
@@ -172,6 +173,19 @@ sub fatrans {
 	   	print $fh "$protein\n";
 	}
     return 1;
+}
+
+
+sub fagff {
+    my ($fh, $file, $gff) = @_;
+
+    my $seq = Bio::SeqIO->new(-file => $fastafile, -format => "fasta");
+    while ( my $seq = $seq->next_seq ) {
+        my $gffio = Bio::Tools::GFF->new(-fh => \*FH, -gff_version => 3);
+        while(my $feature = $gffio->next_feature()) {
+
+        }
+    }
 }
 
 

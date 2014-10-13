@@ -1,0 +1,42 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+
+use FA;
+
+# get rid of spaces in fasta ids and
+# optionally add a prefix before each fasta id
+
+sub usage {
+    my ($exit) = @_;
+    my $statement = <<USAGESTMT;
+    Split each entry in fasta file into pieces based on the provided gff. 
+    The fasta file can contain alignments, in which case gaps are skipped to determine the boundaries.
+    $0 -gff <GFF> <FASTA> [<FASTA> ...]
+USAGESTMT
+    print $statement;
+    exit($exit);
+}
+
+my $help = "";
+my $gff = "";
+
+GetOptions(
+              "help|h"     => \$help,
+              "gff=s"      => \$gff,
+          ) or usage(1);
+
+usage(1) if scalar(@ARGV) < 1;
+
+my $fh = \*STDOUT;
+
+foreach my $file (@ARGV) {
+    fagff($fh, $file, $gff);
+}
+

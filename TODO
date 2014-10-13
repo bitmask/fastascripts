@@ -1,0 +1,56 @@
+
+everything needs tests
+
+
+
+
++ "facat"
+replace this entirely
+  nu
+  pr
+    get rid of spaces in fasta ids and
+    optionally add a prefix before each fasta id
+
++ "fagrep"
+replace this
+  nu
+  pr
+    retains all fasta entries containing the query; matches can be inexact; can take input from a queryfile
+
++ fagrepif
+  nu
+    grep in frame for a codon
+    - could take a frameshift parameter
+
+- fastandard replaces "faunamb"
+remove N 
+  nu    
+    prints fasta file containing only entries with standard nucleotides
+    - needs getopt
+    -- fastq should take max 2 Ns
+    don't know why unamb is replacing ambiguous bases with bases - I'm not sure why you would want to do this, or if you really do, you shouldn't bias your sequence as this was doing previously, so I have removed the functionality
+
+- fasplit
+itemize fasta
+  nu
+  pr
+    split fasta file into a file for each gene
+
+- famerge
+fasta merge
+  nu
+  pr
+    merges fasta entries that contain the same gene name (exons)
+
++ fatrans
+fasta translate
+  nu -> pr
+    translates nucleotide to protein fasta
+    - contains codon manipulation subroutines
+    
+- fawindow should be merged from "fakmer"
+sliding window
+  nu
+  pr
+    extract window or windows from each entry in the fasta file
+    - add ability to just extract a region

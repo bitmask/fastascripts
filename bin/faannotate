@@ -1,0 +1,56 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+
+use FA;
+
+# get rid of spaces in fasta ids and
+# optionally add a prefix before each fasta id
+
+sub usage {
+    my ($exit) = @_;
+    my $statement = <<USAGESTMT;
+    Add (for example) geographic information to FASTA entries from a table of data (csv, etc)
+    This will also annotate .tre files as well as FASTA files
+    $0 --table <CSV> [--sep ,] <FASTA> [<FASTA> ...]
+USAGESTMT
+    print $statement;
+    exit($exit);
+}
+
+my $help = "";
+my $table = "";
+my $sep = "\t";
+my $idcol = 1;
+my $datacol = 4;  # TODO: take a list of columns in order to be concatenated
+
+GetOptions(
+              "help|h"     => \$help,
+              "table=s"    => \$table,
+              "sep=s"      => \$sep,
+              "idcol=i"    => \$idcol,
+              "datacol=i"  => \$datacol,
+          ) or usage(1);
+
+
+usage(1) if scalar(@ARGV) < 1;
+usage(1) if $table eq "";
+
+my $fh = \*STDOUT;
+
+my $lookup = parsetable($table, $sep, $idcol, $datacol);
+
+# if verify table
+#use Data::Dumper;
+#print Dumper($lookup);
+
+foreach my $file (@ARGV) {
+    faannotate($fh, $file, $lookup);
+}
+

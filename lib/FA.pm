@@ -239,4 +239,39 @@ sub fagff {
 }
 
 
+sub parsetable {
+    my ($table, $sep, $idcol, $datacol) = @_;
+    my %lookup;
+    open(my $fh, "<", $table) or die "cannot open table $table for reading: $!";
+    while(<$fh>) {
+        my @line = split /$sep/, $_;
+        my $data = $line[$datacol-1];
+        $data =~ s/ /_/g;
+        $data =~ s/"//g;
+        $lookup{$line[$idcol-1]} = $data;
+    }
+    return \%lookup;
+}
+
+sub faannotate {
+    my ($fh, $file, $lookup) = @_;
+    # TODO standardize parsing -- this should work for both tre files and fasta files
+    open(my $gh, "<", $file) or die "can't open fasta $file for reading: $!";
+    while (<$gh>) {
+        my $found = 0;
+        chomp;
+        foreach my $id (keys %$lookup) {
+            if ($_ =~ /$id/) {
+                my $str = $id . "_" . $lookup->{$id};
+                $_ =~ s/$id/$str/;
+                $found++;
+            }
+            next if $found;
+        }
+        print $fh "$_\n";
+    }
+    return 1;
+}
+
+
 1;

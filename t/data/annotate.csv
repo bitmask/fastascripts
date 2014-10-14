@@ -1,0 +1,3 @@
+seqId,name,collectionYear,sourceCountry,sourceStateRegion,serotype,viralHost,genomeTissueSource,passageHistory,cohortPopulation
+V1000,Dengue virus,2006,Vietnam,South,DEN2,Homo sapiens,cell supernatant,C6/36 4,DENCO
+V9900,Dengue virus,2006,Cambodia,South,DEN1,Homo sapiens,cell supernatant,C6/36 3,DENCO

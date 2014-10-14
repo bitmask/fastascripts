@@ -1,18 +1,12 @@
 
-everything needs tests
-
-
-
 
 + "facat"
-replace this entirely
   nu
   pr
     get rid of spaces in fasta ids and
     optionally add a prefix before each fasta id
 
 + "fagrep"
-replace this
   nu
   pr
     retains all fasta entries containing the query; matches can be inexact; can take input from a queryfile
@@ -54,3 +48,15 @@ sliding window
   pr
     extract window or windows from each entry in the fasta file
     - add ability to just extract a region
+
++ fagff
+  nu
+  pr?
+    extract segments from a gff file to generate a new fasta file with just the given segments
+    also works with alignments, and will disregard alignment characters (-) to select the correct nucleotides for each segment
+
++ faannotate
+  nu
+  pr
+    given a tab delimited file containing the fasta id or part of it, and data that should be added into the fasta file, add it
+    this also works with .tre trees, but should fix the parsing of fasta files

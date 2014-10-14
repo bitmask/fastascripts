@@ -216,11 +216,8 @@ sub fagff {
         if ($first) {
             my $gffio = Bio::Tools::GFF->new(-file => $gff, -gff_version => 3);
             while(my $feature = $gffio->next_feature()) {
-
+                # maybe each feature should be written into different files; but they can be grepped with fagrep after anyway
                 my ($start, $end) = alignsubseq($seq->seq, $feature->start, $feature->end);
-                print "start: $start\n";
-                print "end: $end\n";
-                
                 push @positions, {start => $start, end => $end, orig_start => $feature->start, orig_end => $feature->end};
             }
             $first = 0;
